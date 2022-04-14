@@ -27,6 +27,9 @@ android {
 }
 
 dependencies {
+    implementation rootProject.ext.dependencies.ads
+
     api rootProject.ext.dependencies.appcompat
-    api rootProject.ext.dependencies.ads
+    api rootProject.ext.dependencies.rxjava
+    api rootProject.ext.dependencies.rxandroid
 }

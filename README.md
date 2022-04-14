@@ -38,13 +38,22 @@ include ':snakat-ads'
 ```groovy
 implementation project(path: ':snakat-ads')
 ```
+6. Add your AdMob app ID (identified in the AdMob UI) to your app's *AndroidManifest.xml* file
+```xml
+<manifest>
+    <application>
+      <meta-data
+        android:name="com.google.android.gms.ads.APPLICATION_ID"
+        android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
+    </application>
+</manifest>
+```
 
 ## Usage
 
 ### Initialization
 ```java
 public class App extends Application {
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -62,124 +71,62 @@ public class App extends Application {
 }
 ```
 
-### Get Products
+### Show a banner
 ```java
-List<String> skuList = new ArrayList<>();
-skuList.add("com.example.sku");
+ViewGroup container = ...;
+String adUnitId = "ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz";
 
-Purchaser.getInstance().getProducts(skuList)
-  .subscribeOn(Schedulers.io())
-  .observeOn(AndroidSchedulers.mainThread())
-  .subscribe(new SingleObserver<List<SkuDetails>>() {
+AdsManager.getInstance()
+  .showBanner(container, adUnitId)
+  .subscribe(new Consumer<AdsManager.EventType>() {
     @Override
-    public void onSubscribe(Disposable d) {
-        mCompositeDisposable.add(d);
+    public void accept(AdsManager.EventType type) throws Exception {
+      switch (type) {
+        case LOADED:
+          // Ad finishes loading.
+          break;
+        case CLICKED:
+          // The user clicks on an ad.
+          break;
+        case DISMISSED:
+          // The user is about to return to the app after tapping on an ad.
+          break;
+      }
     }
-
+  }, new Consumer<Throwable>() {
     @Override
-    public void onSuccess(List<SkuDetails> products) {
-      mView.showProducts(products);
+    public void accept(Throwable throwable) throws Exception {
+      // Handle the error occurs when loading ad.
     }
-
-    @Override
-    public void onError(Throwable e) {
-      mView.showError(e);
-    }
-  });
+  })
 ```
 
-### Get purchased products
-```java
-Purchaser.getInstance().getPurchases()
-  .subscribeOn(Schedulers.io())
-  .observeOn(AndroidSchedulers.mainThread())
-  .subscribe(new SingleObserver<List<Purchase>>() {
-    @Override
-    public void onSubscribe(Disposable d) {
-        mCompositeDisposable.add(d);
-    }
-
-    @Override
-    public void onSuccess(List<Purchase> purchases) {
-      mView.showPurchases(products);
-    }
-
-    @Override
-    public void onError(Throwable e) {
-      mView.showError(e);
-    }
-  });
-```
-
-### Purchase a product
+### Show an interstitial
 ```java
 Activity activity = ...;
-SkuDetails product = ...;
+String adUnitId = "ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz";
 
-Purchaser.getInstance().purchase(activity, product, true)
-  .observeOn(AndroidSchedulers.mainThread())
-  .subscribe(new SingleObserver<Purchase>() {
+AdsManager.getInstance()
+  .showInterstitial(activity, adUnitId)
+  .subscribe(new Consumer<AdsManager.EventType>() {
     @Override
-    public void onSubscribe(Disposable d) {
-        mCompositeDisposable.add(d);
+    public void accept(AdsManager.EventType type) throws Exception {
+      switch (type) {
+        case LOADED:
+          // Ad finishes loading.
+          break;
+        case CLICKED:
+          // The user clicks on an ad.
+          break;
+        case DISMISSED:
+          // Fullscreen content is dismissed.
+          break;
+      }
     }
-
+  }, new Consumer<Throwable>() {
     @Override
-    public void onSuccess(Purchase purchase) {
-        mView.purchaseSuccess();
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        mView.showError(e);
-    }
-  });
-```
-
-### Acknowledge a purchased product
-```java
-Purchase purchase = ...;
-
-Purchaser.getInstance().acknowledge(purchase)
-  .observeOn(AndroidSchedulers.mainThread())
-  .subscribe(new SingleObserver<Purchase>() {
-    @Override
-    public void onSubscribe(Disposable d) {
-        mCompositeDisposable.add(d);
-    }
-
-    @Override
-    public void onSuccess(Purchase purchase) {
-      mView.acknowledgeSuccess(e);
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        mView.showError(e);
-    }
-  });
-```
-
-### Consume a purchased product
-```java
-Purchase purchase = ...;
-
-Purchaser.getInstance().consume(purchase)
-  .observeOn(AndroidSchedulers.mainThread())
-  .subscribe(new SingleObserver<Purchase>() {
-    @Override
-    public void onSubscribe(Disposable d) {
-        mCompositeDisposable.add(d);
-    }
-
-    @Override
-    public void onSuccess(Purchase purchase) {
-      mView.consumeSuccess(e);
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        mView.showError(e);
+    public void accept(Throwable throwable) throws Exception {
+      // Handle the error occurs when loading or showing ad.
     }
   });
 ```
