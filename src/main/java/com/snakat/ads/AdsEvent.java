@@ -26,10 +26,35 @@ public class AdsEvent {
         return mData;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format("(%s, %s)",
+                mType,
+                mData
+        );
+    }
+
     public enum Type {
         FAILED_TO_LOAD,
         LOADED,
         CLICKED,
-        DISMISSED
+        DISMISSED;
+
+        @NonNull
+        @Override
+        public String toString() {
+            switch (this) {
+                case FAILED_TO_LOAD:
+                    return "FAILED_TO_LOAD";
+                case LOADED:
+                    return "LOADED";
+                case CLICKED:
+                    return "CLICKED";
+                case DISMISSED:
+                    return "DISMISSED";
+            }
+            return super.toString();
+        }
     }
 }

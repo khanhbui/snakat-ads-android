@@ -25,12 +25,16 @@ import java.lang.ref.WeakReference;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 class AdsManagerInternal {
 
@@ -147,6 +151,7 @@ class AdsManagerInternal {
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         emitter.onNext(new AdsEvent(AdsEvent.Type.DISMISSED));
+                        emitter.onComplete();
                     }
 
                     @Override
@@ -157,5 +162,35 @@ class AdsManagerInternal {
                 interstitialAd.show(activity);
             }
         });
+    }
+
+    @NonNull
+    protected <T> Observable<T> addLog(@NonNull String title, @NonNull Observable<T> observable) {
+        return observable
+                .doOnSubscribe(new Consumer<Disposable>() {
+                    @Override
+                    public void accept(Disposable disposable) throws Exception {
+                        Log.i(TAG, String.format("%s.OnSubscribe.", title));
+                    }
+                })
+                .doOnNext(new Consumer<T>() {
+                    @Override
+                    public void accept(T t) throws Exception {
+                        Log.i(TAG, String.format("%s.OnNext.item=%s", title, t));
+                    }
+                })
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.i(TAG, String.format("%s.OnError: %s", title, throwable.getLocalizedMessage()));
+                        throwable.printStackTrace();
+                    }
+                })
+                .doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        Log.i(TAG, String.format("%s.OnComplete.", title));
+                    }
+                });
     }
 }

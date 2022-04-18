@@ -48,8 +48,14 @@ public final class AdsManager extends AdsManagerInternal {
 
     @NonNull
     public Observable<AdsEvent> showBanner(@NonNull ViewGroup container, @NonNull String adUnitId) {
-        return initialize()
+        Observable<AdsEvent> observable = initialize()
                 .andThen(loadAdView(container, AdSize.BANNER, adUnitId));
+
+        if (LOG_ENABLED) {
+            observable = addLog("showBanner", observable);
+        }
+
+        return observable;
     }
 
     @NonNull
@@ -59,7 +65,7 @@ public final class AdsManager extends AdsManagerInternal {
 
     @NonNull
     public Observable<AdsEvent> showInterstitial(@NonNull Activity activity, @NonNull String adUnitId) {
-        return initialize()
+        Observable<AdsEvent> observable = initialize()
                 .andThen(loadInterstitialAd(adUnitId))
                 .flatMapObservable(new Function<InterstitialAd, ObservableSource<? extends AdsEvent>>() {
                     @Override
@@ -67,5 +73,11 @@ public final class AdsManager extends AdsManagerInternal {
                         return showInterstitialAd(activity, interstitialAd);
                     }
                 });
+
+        if (LOG_ENABLED) {
+            observable = addLog("showInterstitial", observable);
+        }
+
+        return observable;
     }
 }
