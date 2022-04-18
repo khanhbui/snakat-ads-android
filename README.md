@@ -71,6 +71,11 @@ public class App extends Application {
 }
 ```
 
+If you want to see logs while developing your app. Please use this.
+```java
+AdsManager.createInstance(context, true);
+```
+
 ### Show a banner
 ```java
 ViewGroup container = ...;
@@ -78,10 +83,13 @@ String adUnitId = "ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz";
 
 AdsManager.getInstance()
   .showBanner(container, adUnitId)
-  .subscribe(new Consumer<AdsManager.EventType>() {
+  .subscribe(new Consumer<AdsEvent>() {
     @Override
-    public void accept(AdsManager.EventType type) throws Exception {
-      switch (type) {
+    public void accept(AdsEvent adsEvent) throws Exception {
+      switch (adsEvent.getType()) {
+        case FAILED_TO_LOAD:
+          // Ad failed to load.
+          break;
         case LOADED:
           // Ad finishes loading.
           break;
@@ -93,11 +101,6 @@ AdsManager.getInstance()
           break;
       }
     }
-  }, new Consumer<Throwable>() {
-    @Override
-    public void accept(Throwable throwable) throws Exception {
-      // Handle the error occurs when loading ad.
-    }
   })
 ```
 
@@ -108,12 +111,12 @@ String adUnitId = "ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz";
 
 AdsManager.getInstance()
   .showInterstitial(activity, adUnitId)
-  .subscribe(new Consumer<AdsManager.EventType>() {
+  .subscribe(new Consumer<AdsEvent>() {
     @Override
-    public void accept(AdsManager.EventType type) throws Exception {
-      switch (type) {
+    public void accept(AdsEvent adsEvent) throws Exception {
+      switch (adsEvent.getType()) {
         case LOADED:
-          // Ad finishes loading.
+          // Ad finishes loading done.
           break;
         case CLICKED:
           // The user clicks on an ad.
