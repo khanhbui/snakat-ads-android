@@ -28,7 +28,9 @@ public final class AdsManager extends AdsManagerInternal {
 
     public static void createInstance(@NonNull Context context, boolean logEnabled) {
         if (mInstance == null) {
-            mInstance = new AdsManager(context, logEnabled);
+            synchronized (AdsManager.class) {
+                mInstance = new AdsManager(context, logEnabled);
+            }
         }
     }
 
