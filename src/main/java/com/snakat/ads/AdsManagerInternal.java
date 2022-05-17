@@ -123,7 +123,7 @@ class AdsManagerInternal {
                 InterstitialAd.load(mContext.get(), adUnitId, adRequest, new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        emitter.onError(new Exception(loadAdError.getMessage()));
+                        emitter.tryOnError(new Exception(loadAdError.getMessage()));
                     }
 
                     @Override
